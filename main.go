@@ -74,7 +74,15 @@ func findFreeMinNode(hash *map[string]FrequencyNode) *Node {
     hashMinValue := hash[minKey]
     delete(hash, minKey)
 
-    return hashMinValue
+    nodeMinValue := Node{Left: nil,
+                         Data: hashMinValue.Probability,
+                         Letter_s: minKey,
+                         Right: nil,
+
+                         Parent: nil
+                     }
+                         }
+    return &nodeMinValue
 }
 
 func createNewNodeFrom(node1, node2 *Node) *Node {
