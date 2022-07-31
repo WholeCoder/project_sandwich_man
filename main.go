@@ -15,14 +15,17 @@ func main() {
 	printHash(hash)
     binaryTree := initBinaryTree(hash)
 
-    fmt.Println("tree data =", binaryTree.Root.Data)
+    fmt.Println("tree letters =", binaryTree.Root.Letter_s)
 
+    fmt.Println("tree data =", binaryTree.Root.Left.Data)
+    fmt.Println("tree data =", binaryTree.Root.Right.Data)
+return
     bytes, err := json.Marshal(&binaryTree)
     if err != nil {
-        fmt.Println("Can't serislize", binaryTree)
+        fmt.Println("Can't serialize", binaryTree)
         return
     }
-
+return
     var tr3 BinarySearchTree
     err = json.Unmarshal(bytes, &tr3)
     if err != nil {
@@ -51,9 +54,48 @@ func initBinaryTree(hash map[string]Node) BinarySearchTree {
         hash[newNode.Letter_s] = *newNode
     }
 
-    n := hash["abcdefghijklmnopqrstuvwxyz"]
+    var n Node
+    for _, value := range hash {
+        n = value
+    }
+fmt.Println("length of hash == ", len(hash))
+
+debugCountHowManyLeftNodes(&n)
+
+fmt.Println("----Leaves----")
+debugPrintLeavesInTree(&n)
+fmt.Println("--------------")
+
     bSearchTree := BinarySearchTree{Root: &n}
     return bSearchTree
+}
+
+func debugCountHowManyLeftNodes(node *Node) {
+    fmt.Println("----------")
+
+    for node != nil {
+        fmt.Println("\t", node.Letter_s)
+        if node.Right != nil && !true{
+            node = node.Right
+        } else {
+            node = node.Left
+        }
+    }
+
+    fmt.Println("----------")
+}
+
+func debugPrintLeavesInTree(node *Node) {
+    if node == nil {
+        return
+    }
+
+    debugPrintLeavesInTree(node.Left)
+    if node.Left == nil && node.Right == nil {
+        fmt.Println(" " + node.Letter_s + " ")
+        return
+    }
+    debugPrintLeavesInTree(node.Right)
 }
 
 // Find and remove node from hash.  Return the node
@@ -78,10 +120,10 @@ func findFreeMinNode(hash *map[string]Node) *Node {
     hashMinValue := (*hash)[minKey]
     delete(*hash, minKey)
 
-    nodeMinValue := Node{Left: nil,
+    nodeMinValue := Node{Left: hashMinValue.Left,
                          Data: hashMinValue.Data, // Data is Probability
                          Letter_s: minKey,
-                         Right: nil,
+                         Right: hashMinValue.Right,
 
                          Parent: nil,
 
