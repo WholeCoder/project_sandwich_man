@@ -7,7 +7,7 @@ type Node struct {
     Right *Node
 
     Parent *Node
-    
+
     ChildNodeRorL string // Contains R1 or L0 depending if it is a right or left child of parent node.  L0 mean 0 and R1 means 1
 }
 

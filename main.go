@@ -79,7 +79,9 @@ func findFreeMinNode(hash *map[string]FrequencyNode) *Node {
                          Letter_s: minKey,
                          Right: nil,
 
-                         Parent: nil
+                         Parent: nil,
+
+                         ChildNodeRorL: ""
                      }
                          }
     return &nodeMinValue
