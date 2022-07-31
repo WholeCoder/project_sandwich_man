@@ -40,50 +40,52 @@ func check(err error) {
 	}
 }
 
-func initBinaryTree(hash map[string]FrequencyNode) BinarySearchTree {
+func initBinaryTree(hash map[string]Node) BinarySearchTree {
 
     for len(hash) > 1 {
         // findFreeMinNode will remove the nodes from the hash
-        nextNode = findFreeMinNode(&bhash)
-        secondNode = findFreeMinNode(&hash)
+        nextNode := findFreeMinNode(&hash)
+        secondNode := findFreeMinNode(&hash)
 
-        newNode = createNewNodeFrom(nextNode, secondNode)
-        hash[newNode.Letter_s] = newNode
+        newNode := createNewNodeFrom(nextNode, secondNode)
+        hash[newNode.Letter_s] = *newNode
     }
 
-    bSearchTree := BinarySearchTree{Root: hash["abcdefghijklmnopqrstuvwxyz"]}
+    n := hash["abcdefghijklmnopqrstuvwxyz"]
+    bSearchTree := BinarySearchTree{Root: &n}
     return bSearchTree
 }
 
 // Find and remove node from hash.  Return the node
-func findFreeMinNode(hash *map[string]FrequencyNode) *Node {
+func findFreeMinNode(hash *map[string]Node) *Node {
     var minKey string
+    var minValue Node
 
-    for key, value := range hash {
+    for key, value := range *hash {
         minKey = key
+        minValue = value
         break
     }
 
-    for key, value := range hash {
-        if value.Probability < hash[minKey].Probability {
+    for key, value := range *hash {
+        if value.Data< minValue.Data { // Data is the Probability
             minKey = key
+            minValue = value
         }
     }
 
 
-    hashMinValue := hash[minKey]
-    delete(hash, minKey)
+    hashMinValue := (*hash)[minKey]
+    delete(*hash, minKey)
 
     nodeMinValue := Node{Left: nil,
-                         Data: hashMinValue.Probability,
+                         Data: hashMinValue.Data, // Data is Probability
                          Letter_s: minKey,
                          Right: nil,
 
                          Parent: nil,
 
-                         ChildNodeRorL: ""
-                     }
-                         }
+                         ChildNodeRorL: "" }
     return &nodeMinValue
 }
 
@@ -96,14 +98,10 @@ func createNewNodeFrom(node1, node2 *Node) *Node {
     node2.Parent = &newNode
     node2.ChildNodeRorL = "R1"
 
+    return &newNode
 }
 
-type FrequencyNode struct {
-    Probability float64
-    AlreadyUsedToBuildBinaryTree bool
-}
-
-func initFrequencyHash(fileName string) map[string]FrequencyNode {
+func initFrequencyHash(fileName string) map[string]Node {
 	readFile, err := os.Open(fileName)
 	check(err)
 
@@ -132,16 +130,16 @@ func initFrequencyHash(fileName string) map[string]FrequencyNode {
         totalLetters += value
     }
 
-    freqNodemap := map[string]FrequencyNode{}
+    freqNodemap := map[string]Node{}
 
     for key, value := range hash {
-        freqNodemap[key] = FrequencyNode{Probability: float64(value) / float64(totalLetters), AlreadyUsedToBuildBinaryTree: false}
+        freqNodemap[key] = Node{Data: float64(value) / float64(totalLetters), AlreadyUsedToBuildBinaryTree: false}
     }
 
 	return freqNodemap
 }
 
-func printHash(hash map[string]FrequencyNode) {
+func printHash(hash map[string]Node) {
 	keys := "abcdefghijklmnopqrstuvwxyz"
 
 	for _, akey := range []rune(keys) {
