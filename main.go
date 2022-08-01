@@ -12,10 +12,10 @@ func main() {
 	hash := initFrequencyHash("words.txt")
     hashForEncoding := map[string]*Node{}
 
-	printHash(hash)
+	//printHash(hash)
     binaryTree := initBinaryTree(hash, hashForEncoding)
 
-    printHashNodePointer(hashForEncoding)
+    //printHashNodePointer(hashForEncoding)
 
     fmt.Println(binaryTree)
 
@@ -107,10 +107,10 @@ func createNewNodeFrom(node1, node2 *Node) *Node {
     newNode := Node{Left:node1, Data: node1.Data+node2.Data, Letter_s: node1.Letter_s + node2.Letter_s, Right:node2, Parent:nil}
 
     node1.Parent = &newNode
-    node1.ChildNodeRorL = "L0"
+    node1.ChildNodeRorL = "0"
 
     node2.Parent = &newNode
-    node2.ChildNodeRorL = "R1"
+    node2.ChildNodeRorL = "1"
 
     return &newNode
 }
