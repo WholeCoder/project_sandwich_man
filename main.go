@@ -10,10 +10,14 @@ import (
 
 func main() {
 	hash := initFrequencyHash("words.txt")
+    hashForEncoding := map[string]*Node{}
 
 	printHash(hash)
-    binaryTree := initBinaryTree(hash)
+    binaryTree := initBinaryTree(hash, hashForEncoding)
 
+    printHashNodePointer(hashForEncoding)
+
+    fmt.Println(binaryTree)
 
 }
 
@@ -23,12 +27,20 @@ func check(err error) {
 	}
 }
 
-func initBinaryTree(hash map[string]Node) BinarySearchTree {
+func initBinaryTree(hash map[string]Node, hashForEncoding map[string]*Node) BinarySearchTree {
 
     for len(hash) > 1 {
         // findFreeMinNode will remove the nodes from the hash
         nextNode := findFreeMinNode(&hash)
         secondNode := findFreeMinNode(&hash)
+
+        if len((*nextNode).Letter_s) == 1 {
+            hashForEncoding[(*nextNode).Letter_s] = nextNode
+        }
+
+        if len((*secondNode).Letter_s) == 1 {
+            hashForEncoding[(*secondNode).Letter_s] = secondNode
+        }
 
         newNode := createNewNodeFrom(nextNode, secondNode)
         hash[newNode.Letter_s] = *newNode
@@ -141,10 +153,18 @@ func initFrequencyHash(fileName string) map[string]Node {
 	return freqNodemap
 }
 
+
 func printHash(hash map[string]Node) {
 	keys := "abcdefghijklmnopqrstuvwxyz"
 
 	for _, akey := range []rune(keys) {
 		fmt.Println("hash[ ", string(akey), " ] = ", hash[string(akey)])
+	}
+}
+func printHashNodePointer(hash map[string]*Node) {
+	keys := "abcdefghijklmnopqrstuvwxyz"
+
+	for _, akey := range []rune(keys) {
+		fmt.Println("hash[ ", string(akey), " ] = ", *hash[string(akey)])
 	}
 }
