@@ -1,7 +1,6 @@
 package main
 
 import (
-    "encoding/json"
     "strings"
 	"bufio"
 	"fmt"
@@ -15,26 +14,7 @@ func main() {
 	printHash(hash)
     binaryTree := initBinaryTree(hash)
 
-    fmt.Println("tree letters =", binaryTree.Root.Letter_s)
 
-    fmt.Println("tree data =", binaryTree.Root.Left.Data)
-    fmt.Println("tree data =", binaryTree.Root.Right.Data)
-return
-    bytes, err := json.Marshal(&binaryTree)
-    if err != nil {
-        fmt.Println("Can't serialize", binaryTree)
-        return
-    }
-return
-    var tr3 BinarySearchTree
-    err = json.Unmarshal(bytes, &tr3)
-    if err != nil {
-        log.Fatal(err)
-        return
-    }
-
-    fmt.Printf("\nbytes = %#v\n", string(bytes))
-    fmt.Printf("\nroot = %#v\n", tr3.Root)
 }
 
 func check(err error) {
@@ -58,13 +38,6 @@ func initBinaryTree(hash map[string]Node) BinarySearchTree {
     for _, value := range hash {
         n = value
     }
-fmt.Println("length of hash == ", len(hash))
-
-debugCountHowManyLeftNodes(&n)
-
-fmt.Println("----Leaves----")
-debugPrintLeavesInTree(&n, 1)
-fmt.Println("--------------")
 
     bSearchTree := BinarySearchTree{Root: &n}
     return bSearchTree
@@ -83,19 +56,6 @@ func debugCountHowManyLeftNodes(node *Node) {
     }
 
     fmt.Println("----------")
-}
-
-func debugPrintLeavesInTree(node *Node, startCount int) {
-    if node == nil {
-        return
-    }
-
-    debugPrintLeavesInTree(node.Left, startCount+1)
-    if node.Left == nil && node.Right == nil {
-        fmt.Println(startCount," " + node.Letter_s + " ")
-        return
-    }
-    debugPrintLeavesInTree(node.Right, startCount+1)
 }
 
 // Find and remove node from hash.  Return the node
