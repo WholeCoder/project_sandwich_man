@@ -40,7 +40,7 @@ func buildEncodingHash(hashForEncoding map[string]*Node) map[string]string {
     return encodingHash
 }
 
-func buildEncoding(node *Node) {
+func buildEncoding(node *Node) string {
     encoding := ""
 
     for node != nil {
