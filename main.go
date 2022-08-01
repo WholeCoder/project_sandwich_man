@@ -63,7 +63,7 @@ fmt.Println("length of hash == ", len(hash))
 debugCountHowManyLeftNodes(&n)
 
 fmt.Println("----Leaves----")
-debugPrintLeavesInTree(&n)
+debugPrintLeavesInTree(&n, 1)
 fmt.Println("--------------")
 
     bSearchTree := BinarySearchTree{Root: &n}
@@ -85,17 +85,17 @@ func debugCountHowManyLeftNodes(node *Node) {
     fmt.Println("----------")
 }
 
-func debugPrintLeavesInTree(node *Node) {
+func debugPrintLeavesInTree(node *Node, startCount int) {
     if node == nil {
         return
     }
 
-    debugPrintLeavesInTree(node.Left)
+    debugPrintLeavesInTree(node.Left, startCount+1)
     if node.Left == nil && node.Right == nil {
-        fmt.Println(" " + node.Letter_s + " ")
+        fmt.Println(startCount," " + node.Letter_s + " ")
         return
     }
-    debugPrintLeavesInTree(node.Right)
+    debugPrintLeavesInTree(node.Right, startCount+1)
 }
 
 // Find and remove node from hash.  Return the node
