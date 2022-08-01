@@ -13,7 +13,7 @@ func main() {
     hashForEncoding := map[string]*Node{}
 
 	//printHash(hash)
-    binaryTree := initBinaryTree(hash, hashForEncoding)
+    binaryTree := initBinaryTree(hash, &hashForEncoding)
 
     //printHashNodePointer(hashForEncoding)
 
@@ -21,6 +21,7 @@ func main() {
 
     // build hash used to encode letters to binary sequences
     encodingHash := buildEncodingHash(hashForEncoding)
+    printEncodingHash(encodingHash)
 
 }
 
@@ -30,11 +31,23 @@ func check(err error) {
 	}
 }
 
+func printEncodingHash(encodingHash map[string]string) {
+    fmt.Println("------------------")
+
+    for key, value := range encodingHash {
+        fmt.Println("encodingHash[ ", key, " ] = ", value)
+    }
+
+    fmt.Println("------------------")
+}
+
 func buildEncodingHash(hashForEncoding map[string]*Node) map[string]string {
     encodingHash := map[string]string{}
 
     for key, value := range hashForEncoding {
-        encodingHash[key] = buildEncoding(value)
+        if len(key) == 1 {
+            encodingHash[key] = buildEncoding(value)
+        }
     }
 
     return encodingHash
@@ -44,13 +57,16 @@ func buildEncoding(node *Node) string {
     encoding := ""
 
     for node != nil {
+        fmt.Println("           looping\t"+node.ChildNodeRorL+"\t",node.Letter_s)
+        fmt.Printf("   parent:  #%v\n",node.Parent)
         encoding = node.ChildNodeRorL + encoding
+        node = node.Parent
     }
-
+fmt.Println("encoded = " + encoding)
     return encoding
 }
 
-func initBinaryTree(hash map[string]Node, hashForEncoding map[string]*Node) BinarySearchTree {
+func initBinaryTree(hash map[string]Node, hashForEncoding *map[string]*Node) BinarySearchTree {
 
     for len(hash) > 1 {
         // findFreeMinNode will remove the nodes from the hash
@@ -58,11 +74,11 @@ func initBinaryTree(hash map[string]Node, hashForEncoding map[string]*Node) Bina
         secondNode := findFreeMinNode(&hash)
 
         if len((*nextNode).Letter_s) == 1 {
-            hashForEncoding[(*nextNode).Letter_s] = nextNode
+            (*hashForEncoding)[(*nextNode).Letter_s] = nextNode
         }
 
         if len((*secondNode).Letter_s) == 1 {
-            hashForEncoding[(*secondNode).Letter_s] = secondNode
+            (*hashForEncoding)[(*secondNode).Letter_s] = secondNode
         }
 
         newNode := createNewNodeFrom(nextNode, secondNode)
