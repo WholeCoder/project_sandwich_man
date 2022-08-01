@@ -19,12 +19,35 @@ func main() {
 
     fmt.Println(binaryTree)
 
+    // build hash used to encode letters to binary sequences
+    encodingHash := buildEncodingHash(hashForEncoding)
+
 }
 
 func check(err error) {
 	if err != nil {
 		log.Fatalf("failed to open file:  %s", err)
 	}
+}
+
+func buildEncodingHash(hashForEncoding map[string]*Node) map[string]string {
+    encodingHash := map[string]string{}
+
+    for key, value := range hashForEncoding {
+        encodingHash[key] = buildEncoding(value)
+    }
+
+    return encodingHash
+}
+
+func buildEncoding(node *Node) {
+    encoding := ""
+
+    for node != nil {
+        encoding = node.ChildNodeRorL + encoding
+    }
+
+    return encoding
 }
 
 func initBinaryTree(hash map[string]Node, hashForEncoding map[string]*Node) BinarySearchTree {

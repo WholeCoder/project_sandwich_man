@@ -8,7 +8,7 @@ type Node struct {
 
     Parent *Node
 
-    ChildNodeRorL string // Contains R1 or L0 depending if it is a right or left child of parent node.  L0 mean 0 and R1 means 1
+    ChildNodeRorL string // Contains 1 or 0 depending if it is a right or left child of parent node.  0 mean 0 and 1 means 1
     AlreadyUsedToBuildBinaryTree bool
 }
 
