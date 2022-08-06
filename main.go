@@ -112,52 +112,22 @@ func initBinaryTree(hash *map[string]Node, encodingHash *map[string]string) Bina
 
 
     fixBinaryTree(&n) // sorry folks!!
+    fixEncodingHash(&n, encodingHash);
 
-fmt.Println("&&&&&&&&&&&&&&&&&&&&&&")
-    fmt.Println(n.Letter_s)
-    fmt.Println("\t",n.Left)
-    fmt.Println("\t\t",n.Left.Left.Parent)
+    bSearchTree := BinarySearchTree{Root:&n}
+    return bSearchTree
+}
 
-    if n.Left == n.Left.Left.Parent {
-        fmt.Println("!!!!!!!!!!!!! -> n.Left == n.Left.Left.Parent")
-    } else {
-        fmt.Println("????????????? -> n.Left != n.Left.Left.Parent")
-        fmt.Println(n.Left,"  !=  ", n.Left.Left.Parent)
+func fixEncodingHash(node *Node, encodingHash  *map[string]string) {
+    if node == nil {
+        return
     }
 
-
-    fmt.Println("\t",n.Right)
-    fmt.Println("\t\t",n.Right.Right.Parent)
-fmt.Println("&&&&&&&&&&&&&&&&&&&&&&")
-    n1 := findAndReturnANode(&n, "z")
-    fmt.Println("z encoding:  " ,buildEncoding(n1))
-    fmt.Println("Parent of z encoding:  " ,buildEncoding(n1.Parent))
-    return BinarySearchTree{Root: nil }
-fmt.Println("\n\nlen(hash) =",len(*hash),"\n\n")
-fmt.Printf("\n\nn.root) = %#p","(", n1,")")
-fmt.Print(" - Letters_ =",n1.Letter_s," - ChildNodeRorL =",n1.Left.Parent.ChildNodeRorL)
-    printNodeDetails(n1)
-
-
-    fmt.Printf("Left.Parent: %#p","(",n1.Left.Parent,") ")
-    fmt.Println("- Letter_s =",n1.Left.Parent.Letter_s," - ChildNodeRorL =",n1.Left.Parent.ChildNodeRorL)
-    printNodeDetails(n1.Left.Parent)
-
-    fmt.Println("Left Again:")
-    printNodeDetails(n1.Left)
-
-    fmt.Println("Right:")
-    printNodeDetails(n1.Right)
-
-    fmt.Println("Right Again:")
-    printNodeDetails(n1.Right)
-
-    fmt.Println("\n\n Whole Tree is this---:")
-    printOutWholeTreeInOrder(&n, encodingHash)
-    fmt.Println("------------------------End Whole Tree is this\n\n")
-
-    bSearchTree := BinarySearchTree{Root: &n}
-    return bSearchTree
+    if len(node.Letter_s) == 1 {
+        (*encodingHash)[node.Letter_s] = buildEncoding(node)
+    }
+    fixEncodingHash(node.Left, encodingHash)
+    fixEncodingHash(node.Right, encodingHash)
 }
 
 func fixBinaryTree(n *Node) {
