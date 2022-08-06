@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func RetrieveROM(filename string) ([]byte, error) {
+func ReadInBytesFromFile(filename string) ([]byte, error) {
 	file, err := os.Open(filename)
 
 	if err != nil {

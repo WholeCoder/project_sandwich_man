@@ -27,7 +27,7 @@ fmt.Println("args ==",os.Args)
 	//printHash(hash)
 	encodingHash := map[string]string{} //buildEncodingHash(&hashForEncoding)
 
-	binaryTree := initBinaryTree(&hash, &encodingHash)
+    root := initBinaryTree(&hash, &encodingHash)
 
 	//printHashNodePointer(hashForEncoding)
 
@@ -36,7 +36,7 @@ fmt.Println("args ==",os.Args)
 	// build hash used to encode letters to binary sequences
 	//printEncodingHash(encodingHash)
 
-    readInBytes, err := RetrieveROM(os.Args[1])
+    readInBytes, err := ReadInBytesFromFile(os.Args[1])
     if err != nil {
         log.Fatal(err)
     }
@@ -51,7 +51,7 @@ fmt.Println("args ==",os.Args)
     decoding := ""
     var idx int = 0
     for idx < int(sizeReadFromDiskInBits) {
-        br := binaryTree.Root
+        br := root
         for len(br.Letter_s) > 1 {
             currentBit := bitsetReadIn.GetBit(idx)
             if currentBit {

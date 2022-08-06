@@ -8,6 +8,7 @@ import (
     "os"
 )
 
+// Used
 func compressText(encodingHash *map[string]string, originalText string) string {
 	compressed := ""
 	for _, letter := range originalText {
@@ -71,7 +72,8 @@ func buildEncoding(node *Node) string {
 	return encoding
 }
 
-func initBinaryTree(hash *map[string]Node, encodingHash *map[string]string) BinarySearchTree {
+// Used
+func initBinaryTree(hash *map[string]Node, encodingHash *map[string]string) *Node {
 
 	for len(*hash) > 1 {
 		// findFreeMinNode will remove the nodes from the hash
@@ -81,32 +83,21 @@ func initBinaryTree(hash *map[string]Node, encodingHash *map[string]string) Bina
 		secondNode := findFreeMinNode(hash)
 		secondNode.ChildNodeRorL = "1"
 
-		//        if len((*nextNode).Letter_s) == 1 {
-		//            (*hashForEncoding)[(*nextNode).Letter_s] = nextNode
-		//        }
-
-		//        if len((*secondNode).Letter_s) == 1 {
-		//            (*hashForEncoding)[(*secondNode).Letter_s] = secondNode
-		//        }
-
 		newNode := createNewNodeFrom(nextNode, secondNode)
-		fmt.Println("Letter_s:  ", newNode.Letter_s, "\t Child is:  ", nextNode.Left, "\t", secondNode.Left)
 		(*hash)[newNode.Letter_s] = *newNode
 	}
 
 	var n Node
-	for _, value := range *hash {
-		fmt.Println("------------------------------Should only be printed once")
+	for _, value := range *hash { // Runs Once.
 		n = value
 	}
 
 	fixBinaryTree(&n) // sorry folks!!
 	fixEncodingHash(&n, encodingHash)
-
-	bSearchTree := BinarySearchTree{Root: &n}
-	return bSearchTree
+    return &n
 }
 
+// Used
 func fixEncodingHash(node *Node, encodingHash *map[string]string) {
 	if node == nil {
 		return
@@ -119,6 +110,7 @@ func fixEncodingHash(node *Node, encodingHash *map[string]string) {
 	fixEncodingHash(node.Right, encodingHash)
 }
 
+// Used
 func fixBinaryTree(n *Node) {
 	if n.Left != nil {
 		n.Left.Parent = n
@@ -233,23 +225,13 @@ func findFreeMinNode(hash *map[string]Node) *Node {
 	return &nodeMinValue
 }
 
+// Used
 func createNewNodeFrom(node1, node2 *Node) *Node {
 	newNode := Node{Left: node1, Data: node1.Data + node2.Data, Letter_s: node1.Letter_s + node2.Letter_s, Right: node2, Parent: nil}
-
-	node1.Parent = &newNode
-	node1.ChildNodeRorL = "0"
-
-	node2.Parent = &newNode
-	node2.ChildNodeRorL = "1"
-	if len(node1.ChildNodeRorL) > 1 {
-		fmt.Println(">>>>>>>>>>>>\t", node1.ChildNodeRorL)
-	}
-	if len(node2.ChildNodeRorL) > 1 {
-		fmt.Println(">>>>>>>>>>>>\t", node2.ChildNodeRorL)
-	}
 	return &newNode
 }
 
+// Used
 func initFrequencyHash(fileName string) map[string]Node {
 	readFile, err := os.Open(fileName)
 	check(err)

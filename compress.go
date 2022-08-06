@@ -28,7 +28,7 @@ fmt.Println("args ==",os.Args)
 	//printHash(hash)
 	encodingHash := map[string]string{} //buildEncodingHash(&hashForEncoding)
 
-	_ = initBinaryTree(&hash, &encodingHash)
+	initBinaryTree(&hash, &encodingHash)
 
 	//printHashNodePointer(hashForEncoding)
 
@@ -37,7 +37,7 @@ fmt.Println("args ==",os.Args)
 	// build hash used to encode letters to binary sequences
 	//printEncodingHash(encodingHash)
 
-    originalTextBytes, err := RetrieveROM(os.Args[1])
+    originalTextBytes, err := ReadInBytesFromFile(os.Args[1])
     if err != nil {
         log.Fatal(err)
     }
