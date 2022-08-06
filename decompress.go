@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"log"
-	"math"
 	"os"
 	"strings"
 )
@@ -13,15 +12,15 @@ import (
 func main() {
 fmt.Println("args ==",os.Args)
     if len(os.Args) < 3 {
-        fmt.Println("Must specify file to be compressed as first command line parameter.")
-        fmt.Println("Must specify new file to be compressed into as second command line parameter.")
-        fmt.Println("***********************************")
-        fmt.Println("*            Usage                *")
-        fmt.Println("* compress.exe infile outfile.cmp *")
-        fmt.Println("***********************************")
+        fmt.Println("Must specify file to be decompressed as first command line parameter.")
+        fmt.Println("Must specify new file to be decompressed into as second command line parameter.")
+        fmt.Println("************************************")
+        fmt.Println("*            Usage                 *")
+        fmt.Println("* decompress.exe infile.cmp outfile*")
+        fmt.Println("************************************")
         return
     } else {
-        fmt.Println("Deompressing ->",os.Args[1]," ->", os.Args[2])
+        fmt.Println("Compressing ->",os.Args[1]," ->", os.Args[2])
     }
 
 	hash := initFrequencyHash("words.txt")
@@ -30,7 +29,7 @@ fmt.Println("args ==",os.Args)
 	//printHash(hash)
 	encodingHash := map[string]string{} //buildEncodingHash(&hashForEncoding)
 
-	_ = initBinaryTree(&hash, &encodingHash)
+	binaryTree := initBinaryTree(&hash, &encodingHash)
 
 	//printHashNodePointer(hashForEncoding)
 
@@ -39,47 +38,34 @@ fmt.Println("args ==",os.Args)
 	// build hash used to encode letters to binary sequences
 	//printEncodingHash(encodingHash)
 
-    originalTextBytes, err := RetrieveROM(os.Args[1])
+    readInBytes, err := RetrieveROM(os.Args[1])
     if err != nil {
         log.Fatal(err)
     }
-    originalText := string(originalTextBytes)
 
-	compressedText := compressText(&encodingHash, originalText)
+    fmt.Println("read in bytes: ", readInBytes)
 
-	fmt.Println("originalText:  ", originalText)
-	fmt.Println("compressed  :  ", compressedText)
+    sizeReadFromDiskInBits := uint64(binary.BigEndian.Uint64(readInBytes[0:8]))
+	fmt.Println("sizeReadFromDiskInBits = ", sizeReadFromDiskInBits)
 
-	lengthOfCompressedText := len(compressedText)
-	byteLengthOfCompressedText := uint64(math.Ceil(float64(lengthOfCompressedText)/8.0) + 8.0) // add 8.0 bytes for this size (byteLengthOfCompressedText
+    bitsetReadIn := InitNewByteset(readInBytes[8:])
 
-	fmt.Println("lengthOfCompressedText: ", lengthOfCompressedText)
-	fmt.Println("byteLengthOfCompressedText: ", byteLengthOfCompressedText)
+    decoding := ""
+    var idx int = 0
+    for idx < int(sizeReadFromDiskInBits) {
+        br := binaryTree.Root
+        for len(br.Letter_s) > 1 {
+            currentBit := bitsetReadIn.GetBit(idx)
+            if currentBit {
+                br = br.Right
+            } else {
+                br = br.Left
+            }
+            idx++
+        }
+        decoding = decoding + br.Letter_s
+    }
 
-	bray := make([]byte, byteLengthOfCompressedText)
-
-	fmt.Println(byteLengthOfCompressedText)
-
-	b := make([]byte, 8)
-	binary.BigEndian.PutUint64(b, uint64(lengthOfCompressedText))
-
-	count := 0
-	for count < 8 {
-		bray[count] = b[count]
-		count++
-	}
-
-	compressedTextAsByteRay := InitNewByteset(bray)
-	fmt.Println("bray = ", bray)
-
-	for index, number := range compressedText {
-		compressedTextAsByteRay.SetBit(index+64, string(number) == "1")
-	}
-
-	fmt.Println("compressedTextAsByteRay = ", compressedTextAsByteRay)
-	//    node := hashForEncoding["z"]
-	i := uint64(binary.BigEndian.Uint64(compressedTextAsByteRay[0:8]))
-	fmt.Println("length of data in bray = ", i)
 
 	// Open a new file for writing only
 	file, err := os.OpenFile(
@@ -93,11 +79,13 @@ fmt.Println("args ==",os.Args)
 	defer file.Close()
 
 	// Write bytes to file
-	bytesWritten, err := file.Write(compressedTextAsByteRay)
+	bytesWritten, err := file.Write([]byte(decoding))
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Printf("Wrote %d bytes.\n", bytesWritten)
+
+
 
 
 }
@@ -105,7 +93,7 @@ fmt.Println("args ==",os.Args)
 func compressText(encodingHash *map[string]string, originalText string) string {
 	compressed := ""
 	for _, letter := range originalText {
-        compressed = compressed + (*encodingHash)[strings.ToLower(string(letter))]
+		compressed = compressed + (*encodingHash)[strings.ToLower(string(letter))]
 	}
 
 	return compressed
