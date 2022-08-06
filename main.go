@@ -23,8 +23,22 @@ func main() {
     // build hash used to encode letters to binary sequences
     printEncodingHash(encodingHash)
 
+    originalText := "The"
+    compressedText := compressText(&encodingHash, originalText)
+
+    fmt.Println("originalText:  ", originalText)
+    fmt.Println("compressed  :  ", compressedText)
 //    node := hashForEncoding["z"]
 
+}
+
+func compressText(encodingHash *map[string]string, originalText string) string {
+    compressed := ""
+    for _, letter := range originalText {
+        compressed = compressed + (*encodingHash)[strings.ToLower(string(letter))]
+    }
+
+    return compressed
 }
 
 func printOutPathOfNodeToRoot(node *Node) {
