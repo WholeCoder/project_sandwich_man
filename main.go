@@ -70,9 +70,13 @@ func buildEncodingHash(hashForEncoding *map[string]*Node) *map[string]string {
 func buildEncoding(node *Node) string {
     encoding := ""
     n := node
+
+    count := 1
     for n != nil {
         encoding = n.ChildNodeRorL + encoding
+        fmt.Println(n.Letter_s+"\tencoding:  ", encoding,"\tcount =",count)
         n = n.Parent
+        count++
     }
     return encoding
 }
@@ -106,14 +110,37 @@ func initBinaryTree(hash *map[string]Node, encodingHash *map[string]string) Bina
         n = value
     }
 
-    n1 := findAndReturnANode(&n, "vzxjq")
+
+    fixBinaryTree(&n) // sorry folks!!
+
+fmt.Println("&&&&&&&&&&&&&&&&&&&&&&")
+    fmt.Println(n.Letter_s)
+    fmt.Println("\t",n.Left)
+    fmt.Println("\t\t",n.Left.Left.Parent)
+
+    if n.Left == n.Left.Left.Parent {
+        fmt.Println("!!!!!!!!!!!!! -> n.Left == n.Left.Left.Parent")
+    } else {
+        fmt.Println("????????????? -> n.Left != n.Left.Left.Parent")
+        fmt.Println(n.Left,"  !=  ", n.Left.Left.Parent)
+    }
 
 
+    fmt.Println("\t",n.Right)
+    fmt.Println("\t\t",n.Right.Right.Parent)
+fmt.Println("&&&&&&&&&&&&&&&&&&&&&&")
+    n1 := findAndReturnANode(&n, "z")
+    fmt.Println("z encoding:  " ,buildEncoding(n1))
+    fmt.Println("Parent of z encoding:  " ,buildEncoding(n1.Parent))
+    return BinarySearchTree{Root: nil }
 fmt.Println("\n\nlen(hash) =",len(*hash),"\n\n")
-fmt.Print("\n\nn.root) =","(", &(n1),")")
+fmt.Printf("\n\nn.root) = %#p","(", n1,")")
+fmt.Print(" - Letters_ =",n1.Letter_s," - ChildNodeRorL =",n1.Left.Parent.ChildNodeRorL)
     printNodeDetails(n1)
 
-    fmt.Println("Left.Parent:","(",&(n1.Left.Parent),")")
+
+    fmt.Printf("Left.Parent: %#p","(",n1.Left.Parent,") ")
+    fmt.Println("- Letter_s =",n1.Left.Parent.Letter_s," - ChildNodeRorL =",n1.Left.Parent.ChildNodeRorL)
     printNodeDetails(n1.Left.Parent)
 
     fmt.Println("Left Again:")
@@ -131,6 +158,17 @@ fmt.Print("\n\nn.root) =","(", &(n1),")")
 
     bSearchTree := BinarySearchTree{Root: &n}
     return bSearchTree
+}
+
+func fixBinaryTree(n *Node) {
+    if n.Left != nil {
+        n.Left.Parent = n
+        fixBinaryTree(n.Left)
+    }
+    if n.Right != nil {
+        n.Right.Parent = n
+        fixBinaryTree(n.Right)
+    }
 }
 
 func printNodeDetails(n *Node) {
@@ -151,12 +189,14 @@ func findAndReturnANode(n *Node, nodeName string) *Node {
         return n
     }
     n1 := findAndReturnANode(n.Left, nodeName)
-    n2 := findAndReturnANode(n.Right, nodeName)
     if n1 != nil {
         return n1
-    } else {
+    } 
+    n2 := findAndReturnANode(n.Right, nodeName)
+    if n2 != nil {
         return n2
     }
+    return nil
 }
 
 func printOutWholeTreeInOrder(n *Node, encodingHash *map[string]string) {
@@ -229,7 +269,7 @@ func findFreeMinNode(hash *map[string]Node) *Node {
 
                          Parent: nil,
 
-                         ChildNodeRorL: "1" }
+                         ChildNodeRorL: hashMinValue.ChildNodeRorL }
     delete(*hash, minKey)
 
     return &nodeMinValue
