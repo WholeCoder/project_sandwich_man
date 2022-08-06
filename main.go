@@ -11,6 +11,19 @@ import (
 )
 
 func main() {
+fmt.Println("args ==",os.Args)
+    if len(os.Args) < 3 {
+        fmt.Println("Must specify file to be compressed as first command line parameter.")
+        fmt.Println("Must specify new file to be compressed into as second command line parameter.")
+        fmt.Println("***********************************")
+        fmt.Println("*            Usage                *")
+        fmt.Println("* compress.exe infile outfile.cmp *")
+        fmt.Println("***********************************")
+        return
+    } else {
+        fmt.Println("Compressing ->",os.Args[1]," ->", os.Args[2])
+    }
+
 	hash := initFrequencyHash("words.txt")
 	//hashForEncoding := map[string]*Node{}
 
@@ -21,12 +34,17 @@ func main() {
 
 	//printHashNodePointer(hashForEncoding)
 
-	fmt.Println(binaryTree)
+	//fmt.Println(binaryTree)
 
 	// build hash used to encode letters to binary sequences
-	printEncodingHash(encodingHash)
+	//printEncodingHash(encodingHash)
 
-	originalText := "Thequickbrownfoxjumpedoverthelazydog"
+    originalTextBytes, err := RetrieveROM(os.Args[1])
+    if err != nil {
+        log.Fatal(err)
+    }
+    originalText := string(originalTextBytes)
+
 	compressedText := compressText(&encodingHash, originalText)
 
 	fmt.Println("originalText:  ", originalText)
@@ -65,7 +83,7 @@ func main() {
 
 	// Open a new file for writing only
 	file, err := os.OpenFile(
-		"test.compressed",
+		os.Args[2],
 		os.O_WRONLY|os.O_TRUNC|os.O_CREATE,
 		0666,
 	)
@@ -82,7 +100,7 @@ func main() {
 	log.Printf("Wrote %d bytes.\n", bytesWritten)
 
 
-    readInBytes, err := RetrieveROM("test.compressed")
+    readInBytes, err := RetrieveROM(os.Args[2])
     if err != nil {
         log.Fatal(err)
     }
