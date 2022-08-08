@@ -9,18 +9,18 @@ import (
 )
 
 func main() {
-fmt.Println("args ==",os.Args)
-    if len(os.Args) < 3 {
-        fmt.Println("Must specify file to be compressed as first command line parameter.")
-        fmt.Println("Must specify new file to be compressed into as second command line parameter.")
-        fmt.Println("***********************************")
-        fmt.Println("*            Usage                *")
-        fmt.Println("* compress.exe infile outfile.cmp *")
-        fmt.Println("***********************************")
-        return
-    } else {
-        fmt.Println("Deompressing ->",os.Args[1]," ->", os.Args[2])
-    }
+	fmt.Println("args ==", os.Args)
+	if len(os.Args) < 3 {
+		fmt.Println("Must specify file to be compressed as first command line parameter.")
+		fmt.Println("Must specify new file to be compressed into as second command line parameter.")
+		fmt.Println("***********************************")
+		fmt.Println("*            Usage                *")
+		fmt.Println("* compress.exe infile outfile.cmp *")
+		fmt.Println("***********************************")
+		return
+	} else {
+		fmt.Println("Deompressing ->", os.Args[1], " ->", os.Args[2])
+	}
 
 	hash := initFrequencyHash("words.txt")
 	//hashForEncoding := map[string]*Node{}
@@ -37,11 +37,11 @@ fmt.Println("args ==",os.Args)
 	// build hash used to encode letters to binary sequences
 	//printEncodingHash(encodingHash)
 
-    originalTextBytes, err := ReadInBytesFromFile(os.Args[1])
-    if err != nil {
-        log.Fatal(err)
-    }
-    originalText := string(originalTextBytes)
+	originalTextBytes, err := ReadInBytesFromFile(os.Args[1])
+	if err != nil {
+		log.Fatal(err)
+	}
+	originalText := string(originalTextBytes)
 
 	compressedText := compressText(&encodingHash, originalText)
 
@@ -97,6 +97,4 @@ fmt.Println("args ==",os.Args)
 	}
 	log.Printf("Wrote %d bytes.\n", bytesWritten)
 
-
 }
-
