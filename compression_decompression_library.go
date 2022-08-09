@@ -1,18 +1,16 @@
 package main
 
 import (
-    "strings"
-    "bufio"
-    "log"
-    "fmt"
-    "os"
+	"fmt"
+	"io/ioutil"
+	"log"
 )
 
 // Used
 func compressText(encodingHash *map[string]string, originalText string) string {
 	compressed := ""
 	for _, letter := range originalText {
-        compressed = compressed + (*encodingHash)[strings.ToLower(string(letter))]
+		compressed = compressed + (*encodingHash)[string(letter)]
 	}
 
 	return compressed
@@ -94,7 +92,7 @@ func initBinaryTree(hash *map[string]Node, encodingHash *map[string]string) *Nod
 
 	fixBinaryTree(&n) // sorry folks!!
 	fixEncodingHash(&n, encodingHash)
-    return &n
+	return &n
 }
 
 // Used
@@ -233,26 +231,15 @@ func createNewNodeFrom(node1, node2 *Node) *Node {
 
 // Used
 func initFrequencyHash(fileName string) map[string]Node {
-	readFile, err := os.Open(fileName)
+
+	dat, err := ioutil.ReadFile(fileName)
 	check(err)
-
-	fileScanner := bufio.NewScanner(readFile)
-	fileScanner.Split(bufio.ScanLines)
-
-	var lines []string
-
-	for fileScanner.Scan() {
-		lines = append(lines, strings.ToLower(fileScanner.Text()))
-	}
+	asString := string(dat)
 
 	hash := map[string]int{}
-	for _, eachline := range lines {
-		letters := strings.Split(eachline, "")
-		for _, letter := range letters {
-			if strings.ContainsAny(letter, "abcdefghijklmnopqrstuvwxyz") {
-				hash[letter]++
-			}
-		}
+
+	for _, ch := range asString {
+		hash[string(ch)] += 1
 	}
 
 	totalLetters := 0

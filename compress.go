@@ -22,20 +22,11 @@ func main() {
 		fmt.Println("Deompressing ->", os.Args[1], " ->", os.Args[2])
 	}
 
-	hash := initFrequencyHash("words.txt")
-	//hashForEncoding := map[string]*Node{}
+	hash := initFrequencyHash(os.Args[1])
 
-	//printHash(hash)
-	encodingHash := map[string]string{} //buildEncodingHash(&hashForEncoding)
+	encodingHash := map[string]string{}
 
 	initBinaryTree(&hash, &encodingHash)
-
-	//printHashNodePointer(hashForEncoding)
-
-	//fmt.Println(binaryTree)
-
-	// build hash used to encode letters to binary sequences
-	//printEncodingHash(encodingHash)
 
 	originalTextBytes, err := ReadInBytesFromFile(os.Args[1])
 	if err != nil {
@@ -75,7 +66,7 @@ func main() {
 	}
 
 	fmt.Println("compressedTextAsByteRay = ", compressedTextAsByteRay)
-	//    node := hashForEncoding["z"]
+
 	i := uint64(binary.BigEndian.Uint64(compressedTextAsByteRay[0:8]))
 	fmt.Println("length of data in bray = ", i)
 
