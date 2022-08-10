@@ -45,6 +45,9 @@ func main() {
 	// Marshall
 	hashForDecompression := initFrequencyHash(os.Args[1])
 
+	// *** make all parents in tree nil ***
+	hashForDecompression = nilOutParentNodes(hashForDecompression)
+
 	// write this to fileInBytesInMemory
 	hashMarshalled, err := json.Marshal(hashForDecompression)
 	if err != nil {
@@ -86,8 +89,8 @@ func main() {
 		count++
 	}
 
-	compressedTextAsByteRay := InitNewByteset(bray)
-	fmt.Println("bray = ", bray)
+	compressedTextAsByteRay := InitNewByteset(fileInBytesInMemory)
+	fmt.Println("fileInBytesInMemory = ", fileInBytesInMemory)
 
 	for index, number := range compressedText {
 		compressedTextAsByteRay.SetBit(index+64+64+len(hashMarshalled)*8, string(number) == "1")
