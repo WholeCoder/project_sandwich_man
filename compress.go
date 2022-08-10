@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math"
@@ -40,21 +41,48 @@ func main() {
 	fmt.Println("compressed  :  ", compressedText)
 
 	lengthOfCompressedText := len(compressedText)
-	byteLengthOfCompressedText := uint64(math.Ceil(float64(lengthOfCompressedText)/8.0) + 8.0) // add 8.0 bytes for this size (byteLengthOfCompressedText
+
+	// Marshall
+	hashForDecompression := initFrequencyHash(os.Args[1])
+
+	// write this to fileInBytesInMemory
+	hashMarshalled, err := json.Marshal(hashForDecompression)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(hashMarshalled)) //{"Name":"Amanda","Age":12}
+
+	// write this to fileInBytesInMemory
+	marshalledHashDecompressionLength := len(hashMarshalled)
+
+	// use this for lenght of file in bytes
+	byteLengthOfCompressedTextWithAdditional := uint64(math.Ceil(float64(lengthOfCompressedText)/8.0) + 8.0 + marshalledHashDecompressionLength + 8.0) // add 8.0 bytes for this size byteLengthOfCompressedText and add 8.0 for length of marshalledHashDecompressionLength (8) plus lenght of hashMarshalled
 
 	fmt.Println("lengthOfCompressedText: ", lengthOfCompressedText)
-	fmt.Println("byteLengthOfCompressedText: ", byteLengthOfCompressedText)
+	fmt.Println("byteLengthOfCompressedTextWithAdditional: ", byteLengthOfCompressedTextWithAdditional)
 
-	bray := make([]byte, byteLengthOfCompressedText)
+	// This is actually the contents of the file (write it to the file).
+	fileInBytesInMemory := make([]byte, byteLengthOfCompressedTextWithAdditional)
 
-	fmt.Println(byteLengthOfCompressedText)
+	fmt.Println(byteLengthOfCompressedTextWithAdditional)
 
-	b := make([]byte, 8)
-	binary.BigEndian.PutUint64(b, uint64(lengthOfCompressedText))
+	marshalledHashDecompressionLengthMarshalled := getBytesForInt(mashallHashDecompressionLength)
+	// hashMarshalled
+	lengthOfCompressedTextMarshalled := getBytesForInt(lengthOfCompressedText)
+	// compressedTextAsByteRay
 
 	count := 0
 	for count < 8 {
-		bray[count] = b[count]
+		fileInBytesInMemory[count] = marshalledHashDecompressionLengthMarshalled[count]
+		count++
+	}
+
+	for count < 8+len(hashMarshalled) {
+		fileInBytesInMemory[count] = hashMarshelled[count-8]
+	}
+
+	for count < 8+len(hashMarshalled)+8 {
+		fileInBytesInMemory[count] = lengthOfCompressedText[count-8-len(hashMarshalled)]
 		count++
 	}
 
@@ -62,13 +90,10 @@ func main() {
 	fmt.Println("bray = ", bray)
 
 	for index, number := range compressedText {
-		compressedTextAsByteRay.SetBit(index+64, string(number) == "1")
+		compressedTextAsByteRay.SetBit(index+64+64+len(hashMarshalled)*8, string(number) == "1")
 	}
 
 	fmt.Println("compressedTextAsByteRay = ", compressedTextAsByteRay)
-
-	i := uint64(binary.BigEndian.Uint64(compressedTextAsByteRay[0:8]))
-	fmt.Println("length of data in bray = ", i)
 
 	// Open a new file for writing only
 	file, err := os.OpenFile(
@@ -88,4 +113,13 @@ func main() {
 	}
 	log.Printf("Wrote %d bytes.\n", bytesWritten)
 
+}
+
+func getBytesForInt(length int) []byte {
+
+	b := make([]byte, 8)
+
+	binary.BigEndian.PutUint64(b, uint64(lengthOfCompressedText))
+
+	return b
 }
