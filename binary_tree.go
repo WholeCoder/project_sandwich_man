@@ -15,3 +15,14 @@ type Node struct {
 type BinarySearchTree struct {
     Root *Node
 }
+
+func blankOutAllParentNodes(aNode *Node) {
+    if aNode == nil {
+        return
+    }
+
+    blankOutAllParentNodes(aNode.Left)
+    blankOutAllParentNodes(aNode.Right)
+
+    aNode.Parent = nil
+}

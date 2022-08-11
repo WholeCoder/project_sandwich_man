@@ -42,24 +42,21 @@ func main() {
 
 	lengthOfCompressedText := len(compressedText)
 
-	// Marshall
+	// Marshall - initFrequencyHash returns the hash with Node as value that are nil
 	hashForDecompression := initFrequencyHash(os.Args[1])
-
-	// *** make all parents in tree nil ***
-	hashForDecompression = nilOutParentNodes(hashForDecompression)
 
 	// write this to fileInBytesInMemory
 	hashMarshalled, err := json.Marshal(hashForDecompression)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(string(hashMarshalled)) //{"Name":"Amanda","Age":12}
+	fmt.Println(string(hashMarshalled))
 
 	// write this to fileInBytesInMemory
 	marshalledHashDecompressionLength := len(hashMarshalled)
 
 	// use this for lenght of file in bytes
-	byteLengthOfCompressedTextWithAdditional := uint64(math.Ceil(float64(lengthOfCompressedText)/8.0) + 8.0 + marshalledHashDecompressionLength + 8.0) // add 8.0 bytes for this size byteLengthOfCompressedText and add 8.0 for length of marshalledHashDecompressionLength (8) plus lenght of hashMarshalled
+	byteLengthOfCompressedTextWithAdditional := uint64(uint64(math.Ceil(float64(lengthOfCompressedText)/8.0)) + 8.0 + uint64(marshalledHashDecompressionLength) + 8.0) // add 8.0 bytes for this size byteLengthOfCompressedText and add 8.0 for length of marshalledHashDecompressionLength (8) plus lenght of hashMarshalled
 
 	fmt.Println("lengthOfCompressedText: ", lengthOfCompressedText)
 	fmt.Println("byteLengthOfCompressedTextWithAdditional: ", byteLengthOfCompressedTextWithAdditional)
@@ -69,7 +66,7 @@ func main() {
 
 	fmt.Println(byteLengthOfCompressedTextWithAdditional)
 
-	marshalledHashDecompressionLengthMarshalled := getBytesForInt(mashallHashDecompressionLength)
+	marshalledHashDecompressionLengthMarshalled := getBytesForInt(marshalledHashDecompressionLength)
 	// hashMarshalled
 	lengthOfCompressedTextMarshalled := getBytesForInt(lengthOfCompressedText)
 	// compressedTextAsByteRay
@@ -81,11 +78,12 @@ func main() {
 	}
 
 	for count < 8+len(hashMarshalled) {
-		fileInBytesInMemory[count] = hashMarshelled[count-8]
+		fileInBytesInMemory[count] = hashMarshalled[count-8]
+        count++
 	}
 
 	for count < 8+len(hashMarshalled)+8 {
-		fileInBytesInMemory[count] = lengthOfCompressedText[count-8-len(hashMarshalled)]
+		fileInBytesInMemory[count] = lengthOfCompressedTextMarshalled[count-8-len(hashMarshalled)]
 		count++
 	}
 
@@ -122,7 +120,7 @@ func getBytesForInt(length int) []byte {
 
 	b := make([]byte, 8)
 
-	binary.BigEndian.PutUint64(b, uint64(lengthOfCompressedText))
+	binary.BigEndian.PutUint64(b, uint64(length))
 
 	return b
 }

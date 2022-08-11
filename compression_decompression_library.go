@@ -230,9 +230,6 @@ func createNewNodeFrom(node1, node2 *Node) *Node {
 }
 
 // Used
-func nilOutParentNodes(
-
-// Used
 func initFrequencyHash(fileName string) map[string]Node {
 
 	dat, err := ioutil.ReadFile(fileName)
