@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/binary"
 	"encoding/json"
+    "io/ioutil"
 	"fmt"
 	"log"
 	"os"
@@ -22,36 +23,30 @@ func main() {
 		fmt.Println("Compressing ->", os.Args[1], " ->", os.Args[2])
 	}
 
-	hash := initFrequencyHash("words.txt")
-	//hashForEncoding := map[string]*Node{}
+    readInBytesForHashUnmarshalling, err := ioutil.ReadFile(os.Args[1])
 
-	//printHash(hash)
-	encodingHash := map[string]string{} //buildEncodingHash(&hashForEncoding)
+	sizeOfHashReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytesForHashUnmarshalling[:8]))
 
-	root := initBinaryTree(&hash, &encodingHash)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	sizeReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytesForHashUnmarshalling[0:8]))
-
-	var s2 string = string(readInBytesForHashUnmarshalling[8:sizeReadFromDiskInBytes])
+	var s2 string = string(readInBytesForHashUnmarshalling[8:sizeOfHashReadFromDiskInBytes])
 	var encodingHash = map[string]Node{}
 	err = json.Unmarshal([]byte(s2), encodingHash)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("read in bytes: ", readInBytes)
+    // *** fix Parent pointers on node tree pionted to by encodingHash ***
 
-	sizeReadFromDiskInBits := uint64(binary.BigEndian.Uint64(readInBytes[0:8]))
-	fmt.Println("sizeReadFromDiskInBits = ", sizeReadFromDiskInBits)
 
-	bitsetReadIn := InitNewByteset(readInBytes[8:])
+	fmt.Println("read in bytes for hash unmarshalling: ", readInBytesForHashUnmarshalling)
+
+	sizeOfCompressedTextReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytesForHashUnmarshalling[sizeOfHashReadFromDiskInBytes+8:sizeOfHashReadFromDiskInBytes+8+8]))
+	fmt.Println("sizeOfCompressedTextReadFromDiskInBytes2 =", sizeOfCompressedTextReadFromDiskInBytes)
+
+	bitsetReadIn := InitNewByteset(readInBytesForHashUnmarshalling[8+sizeOfHashReadFromDiskInBytes:8+sizeOfHashReadFromDiskInBytes+int(sizeOfCompressedTextReadFromDiskInBytes)])
 
 	decoding := ""
 	var idx int = 0
-	for idx < int(sizeReadFromDiskInBits) {
+	for idx < int(sizeReadFromDiskInBytes2) {
 		br := root
 		for len(br.Letter_s) > 1 {
 			currentBit := bitsetReadIn.GetBit(idx)
