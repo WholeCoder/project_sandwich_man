@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/binary"
 	"encoding/json"
-    "io/ioutil"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 )
@@ -23,30 +23,37 @@ func main() {
 		fmt.Println("Compressing ->", os.Args[1], " ->", os.Args[2])
 	}
 
-    readInBytesForHashUnmarshalling, err := ioutil.ReadFile(os.Args[1])
+	readInBytesForHashUnmarshalling, err := ioutil.ReadFile(os.Args[1])
 
 	sizeOfHashReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytesForHashUnmarshalling[:8]))
 
 	var s2 string = string(readInBytesForHashUnmarshalling[8:sizeOfHashReadFromDiskInBytes])
-	var encodingHash = map[string]Node{}
-	err = json.Unmarshal([]byte(s2), encodingHash)
+	var hash = map[string]float64{}
+	err = json.Unmarshal([]byte(s2), hash)
 	if err != nil {
 		panic(err)
 	}
 
-    // *** fix Parent pointers on node tree pionted to by encodingHash ***
-
+	encodingHash := map[string]string{}
+	initBinaryTree(&hash, &encodingHash)
 
 	fmt.Println("read in bytes for hash unmarshalling: ", readInBytesForHashUnmarshalling)
 
-	sizeOfCompressedTextReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytesForHashUnmarshalling[sizeOfHashReadFromDiskInBytes+8:sizeOfHashReadFromDiskInBytes+8+8]))
+	sizeOfCompressedTextReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytesForHashUnmarshalling[sizeOfHashReadFromDiskInBytes+8 : sizeOfHashReadFromDiskInBytes+8+8]))
 	fmt.Println("sizeOfCompressedTextReadFromDiskInBytes2 =", sizeOfCompressedTextReadFromDiskInBytes)
 
-	bitsetReadIn := InitNewByteset(readInBytesForHashUnmarshalling[8+sizeOfHashReadFromDiskInBytes:8+sizeOfHashReadFromDiskInBytes+int(sizeOfCompressedTextReadFromDiskInBytes)])
+	bitsetReadIn := InitNewByteset(readInBytesForHashUnmarshalling[8+sizeOfHashReadFromDiskInBytesi+8 : 8+8+sizeOfHashReadFromDiskInBytes+int(sizeOfCompressedTextReadFromDiskInBytes)])
+
+	// Grab root.
+	var root *Node
+	for _, value := range hash {
+		fmt.Println("*** Should Only Print Out Once ***")
+		root = value
+	}
 
 	decoding := ""
 	var idx int = 0
-	for idx < int(sizeReadFromDiskInBytes2) {
+	for idx < int(sizeOfCompressedTextReadFromDiskInBytes*8) {
 		br := root
 		for len(br.Letter_s) > 1 {
 			currentBit := bitsetReadIn.GetBit(idx)
@@ -71,7 +78,7 @@ func main() {
 	}
 	defer file.Close()
 
-	// Write bytes to file
+	// Write bytes to file.....
 	bytesWritten, err := file.Write([]byte(decoding))
 	if err != nil {
 		log.Fatal(err)

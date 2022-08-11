@@ -42,8 +42,8 @@ func main() {
 
 	lengthOfCompressedText := len(compressedText)
 
-	// Marshall - initFrequencyHash returns the hash with Node as value that are nil
-	hashForDecompression := initFrequencyHash(os.Args[1])
+	// Marshall - initFrequencyHash returns the hash with float64 as value.
+	hashForDecompression := initFrequencyHashWithFloat64ForValues(os.Args[1])
 
 	// write this to fileInBytesInMemory
 	hashMarshalled, err := json.Marshal(hashForDecompression)
@@ -79,7 +79,7 @@ func main() {
 
 	for count < 8+len(hashMarshalled) {
 		fileInBytesInMemory[count] = hashMarshalled[count-8]
-        count++
+		count++
 	}
 
 	for count < 8+len(hashMarshalled)+8 {
