@@ -82,8 +82,8 @@ func main() {
 		count++
 	}
 
-	for count < 8+len(hashMarshalled)+8 {
-		fileInBytesInMemory[count] = lengthOfCompressedTextMarshalled[count-8-len(hashMarshalled)]
+	for count < 8+marshalledHashDecompressionLength+8 {
+		fileInBytesInMemory[count] = lengthOfCompressedTextMarshalled[count-8-marshalledHashDecompressionLength]
 		count++
 	}
 
@@ -91,7 +91,7 @@ func main() {
 	fmt.Println("fileInBytesInMemory = ", fileInBytesInMemory)
 
 	for index, number := range compressedText {
-		compressedTextAsByteRay.SetBit(index+64+64+len(hashMarshalled)*8, string(number) == "1")
+		compressedTextAsByteRay.SetBit(index+64+64+marshalledHashDecompressionLength*8, string(number) == "1")
 	}
 
 	fmt.Println("compressedTextAsByteRay = ", compressedTextAsByteRay)
