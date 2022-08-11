@@ -28,10 +28,16 @@ func main() {
 	sizeOfHashReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytesForHashUnmarshalling[:8]))
 
 	var s2 string = string(readInBytesForHashUnmarshalling[8:sizeOfHashReadFromDiskInBytes])
-	var hash = map[string]float64{}
-	err = json.Unmarshal([]byte(s2), hash)
+	var tempHash = map[string]float64{}
+	err = json.Unmarshal([]byte(s2), tempHash)
 	if err != nil {
 		panic(err)
+	}
+
+	// Create a hash with strings as keys and Nodes with float64 assigned to Data attribute.
+	hash := map[string]Node{}
+	for key, value := range tempHash {
+		hash[key] = Node{Data: value, AlreadyUsedToBuildBinaryTree: fals}
 	}
 
 	encodingHash := map[string]string{}
