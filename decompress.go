@@ -20,7 +20,7 @@ func main() {
 		fmt.Println("************************************")
 		return
 	} else {
-		fmt.Println("Compressing ->", os.Args[1], " ->", os.Args[2])
+		fmt.Println("Decompressing ->", os.Args[1], " ->", os.Args[2])
 	}
 
 	readInBytesForHashUnmarshalling, err := ioutil.ReadFile(os.Args[1])
@@ -37,7 +37,7 @@ func main() {
 	// Create a hash with strings as keys and Nodes with float64 assigned to Data attribute.
 	hash := map[string]Node{}
 	for key, value := range tempHash {
-		hash[key] = Node{Data: value, AlreadyUsedToBuildBinaryTree: fals}
+		hash[key] = Node{Data: value, AlreadyUsedToBuildBinaryTree: false}
 	}
 
 	encodingHash := map[string]string{}
@@ -48,13 +48,13 @@ func main() {
 	sizeOfCompressedTextReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytesForHashUnmarshalling[sizeOfHashReadFromDiskInBytes+8 : sizeOfHashReadFromDiskInBytes+8+8]))
 	fmt.Println("sizeOfCompressedTextReadFromDiskInBytes2 =", sizeOfCompressedTextReadFromDiskInBytes)
 
-	bitsetReadIn := InitNewByteset(readInBytesForHashUnmarshalling[8+sizeOfHashReadFromDiskInBytesi+8 : 8+8+sizeOfHashReadFromDiskInBytes+int(sizeOfCompressedTextReadFromDiskInBytes)])
+	bitsetReadIn := InitNewByteset(readInBytesForHashUnmarshalling[8+int(sizeOfHashReadFromDiskInBytes)+8 : 8+8+int(sizeOfHashReadFromDiskInBytes)+int(sizeOfCompressedTextReadFromDiskInBytes)])
 
 	// Grab root.
 	var root *Node
 	for _, value := range hash {
 		fmt.Println("*** Should Only Print Out Once ***")
-		root = value
+		root = &value
 	}
 
 	decoding := ""
