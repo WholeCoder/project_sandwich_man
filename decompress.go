@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/binary"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
+	"fmt"
 	"log"
 	"os"
 )
@@ -27,10 +27,10 @@ func main() {
 
 	sizeOfHashReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytes[:8]))
 
-	var s2 string = string(readInBytes[8:sizeOfHashReadFromDiskInBytes])
-
+	var s2 string = string(readInBytes[8:sizeOfHashReadFromDiskInBytes+8])
+fmt.Println("float hash =", s2)
 	var tempHash = map[string]float64{}
-	err = json.Unmarshal([]byte(s2), tempHash)
+	err = json.Unmarshal([]byte(s2), &tempHash)
 	if err != nil {
 		panic(err)
 	}
@@ -50,7 +50,7 @@ func main() {
 	fmt.Println("sizeOfCompressedTextReadFromDiskInBytes2 =", sizeOfCompressedTextReadFromDiskInBytes)
 	sizeOfCompressedTextReadFromDiskInBits := uint64(binary.BigEndian.Uint64(readInBytes[sizeOfHashReadFromDiskInBytes+8+8 : sizeOfHashReadFromDiskInBytes+8+8+8]))
 
-	bitsetReadIn := InitNewByteset(readInBytes[8+int(sizeOfHashReadFromDiskInBytes)+8+9 : 8+8+8+int(sizeOfHashReadFromDiskInBytes)+int(sizeOfCompressedTextReadFromDiskInBytes)])
+	bitsetReadIn := InitNewByteset(readInBytes[8+int(sizeOfHashReadFromDiskInBytes)+8+8 : 8+8+8+int(sizeOfHashReadFromDiskInBytes)+int(sizeOfCompressedTextReadFromDiskInBytes)])
 
 	// Grab root.
 	var root *Node
@@ -59,7 +59,7 @@ func main() {
 		root = &value
 	}
 
-	decoding := ""
+    decoding := ""
 	var idx int = 0
 	for idx < int(sizeOfCompressedTextReadFromDiskInBits) {
 		br := root
@@ -72,6 +72,7 @@ func main() {
 			}
 			idx++
 		}
+fmt.Println(br.Letter_s)
 		decoding = decoding + br.Letter_s
 	}
 
