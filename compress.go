@@ -19,7 +19,7 @@ func main() {
 		fmt.Println("************************************")
 		return
 	} else {
-		fmt.Println("Decompressing ->", os.Args[1], " ->", os.Args[2])
+		fmt.Println("Compressing ->", os.Args[1], " ->", os.Args[2])
 	}
 
 	hash := initFrequencyHash(os.Args[1])
