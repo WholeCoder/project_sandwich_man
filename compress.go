@@ -49,7 +49,7 @@ func main() {
     fmt.Println("5.  compressed text =", compressedText)
     fmt.Println("*****************************************************************************************************************")
 	// Marshall - initFrequencyHash returns the hash with Node as value that are nil
-	hashForDecompression := initFrequencyHash(os.Args[1])
+	hashForDecompression := initFrequencyHashWithFloat64ForValues(os.Args[1])
 
 	// write this to fileInBytesInMemory
 	hashMarshalled, err := json.Marshal(hashForDecompression)

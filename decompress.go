@@ -16,7 +16,7 @@ func main() {
 		fmt.Println("Must specify new file to be decompressed into as second command line parameter.")
 		fmt.Println("************************************")
 		fmt.Println("*            Usage                 *")
-		fmt.Println("* decompress.exe infile.cmp outfile*")
+		fmt.Println("* ",os.Args[0]," infile.cmp outfile*")
 		fmt.Println("************************************")
 		return
 	} else {
@@ -28,6 +28,7 @@ func main() {
 	sizeOfHashReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytesForHashUnmarshalling[:8]))
 
 	var s2 string = string(readInBytesForHashUnmarshalling[8:sizeOfHashReadFromDiskInBytes])
+fmt.Println("hash float =", s2)
 	var tempHash = map[string]float64{}
 	err = json.Unmarshal([]byte(s2), tempHash)
 	if err != nil {
