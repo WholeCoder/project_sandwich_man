@@ -23,12 +23,12 @@ func main() {
 		fmt.Println("Decompressing ->", os.Args[1], " ->", os.Args[2])
 	}
 
-	readInBytesForHashUnmarshalling, err := ioutil.ReadFile(os.Args[1])
+	readInBytes, err := ioutil.ReadFile(os.Args[1])
 
-	sizeOfHashReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytesForHashUnmarshalling[:8]))
+	sizeOfHashReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytes[:8]))
 
-	var s2 string = string(readInBytesForHashUnmarshalling[8:sizeOfHashReadFromDiskInBytes])
-fmt.Println("hash float =", s2)
+	var s2 string = string(readInBytes[8:sizeOfHashReadFromDiskInBytes])
+
 	var tempHash = map[string]float64{}
 	err = json.Unmarshal([]byte(s2), tempHash)
 	if err != nil {
@@ -44,12 +44,13 @@ fmt.Println("hash float =", s2)
 	encodingHash := map[string]string{}
 	initBinaryTree(&hash, &encodingHash)
 
-	fmt.Println("read in bytes for hash unmarshalling: ", readInBytesForHashUnmarshalling)
+	fmt.Println("read in bytes from disk: ", readInBytes)
 
-	sizeOfCompressedTextReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytesForHashUnmarshalling[sizeOfHashReadFromDiskInBytes+8 : sizeOfHashReadFromDiskInBytes+8+8]))
+	sizeOfCompressedTextReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytes[sizeOfHashReadFromDiskInBytes+8 : sizeOfHashReadFromDiskInBytes+8+8]))
 	fmt.Println("sizeOfCompressedTextReadFromDiskInBytes2 =", sizeOfCompressedTextReadFromDiskInBytes)
+	sizeOfCompressedTextReadFromDiskInBits := uint64(binary.BigEndian.Uint64(readInBytes[sizeOfHashReadFromDiskInBytes+8+8 : sizeOfHashReadFromDiskInBytes+8+8+8]))
 
-	bitsetReadIn := InitNewByteset(readInBytesForHashUnmarshalling[8+int(sizeOfHashReadFromDiskInBytes)+8 : 8+8+int(sizeOfHashReadFromDiskInBytes)+int(sizeOfCompressedTextReadFromDiskInBytes)])
+	bitsetReadIn := InitNewByteset(readInBytes[8+int(sizeOfHashReadFromDiskInBytes)+8+9 : 8+8+8+int(sizeOfHashReadFromDiskInBytes)+int(sizeOfCompressedTextReadFromDiskInBytes)])
 
 	// Grab root.
 	var root *Node
@@ -60,7 +61,7 @@ fmt.Println("hash float =", s2)
 
 	decoding := ""
 	var idx int = 0
-	for idx < int(sizeOfCompressedTextReadFromDiskInBytes*8) {
+	for idx < int(sizeOfCompressedTextReadFromDiskInBits) {
 		br := root
 		for len(br.Letter_s) > 1 {
 			currentBit := bitsetReadIn.GetBit(idx)
