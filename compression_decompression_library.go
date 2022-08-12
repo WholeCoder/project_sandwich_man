@@ -254,6 +254,33 @@ func initFrequencyHash(fileName string) map[string]Node {
 	return freqNodemap
 }
 
+// Used
+func initFrequencyHashWithFloat64ForValues(fileName string) map[string]float64 {
+
+	dat, err := ioutil.ReadFile(fileName)
+	check(err)
+	asString := string(dat)
+
+	hash := map[string]int{}
+
+	for _, ch := range asString {
+		hash[string(ch)] += 1
+	}
+
+	totalLetters := 0
+	for _, value := range hash {
+		totalLetters += value
+	}
+
+	freqNodemap := map[string]float64{}
+
+	for key, value := range hash {
+		freqNodemap[key] = float64(value) / float64(totalLetters)
+	}
+
+	return freqNodemap
+}
+
 func printHash(hash map[string]Node) {
 	keys := "abcdefghijklmnopqrstuvwxyz"
 
