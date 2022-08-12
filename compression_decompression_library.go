@@ -63,7 +63,6 @@ func buildEncoding(node *Node) string {
 	count := 1
 	for n != nil {
 		encoding = n.ChildNodeRorL + encoding
-		fmt.Println(n.Letter_s+"\tencoding:  ", encoding, "\tcount =", count)
 		n = n.Parent
 		count++
 	}
@@ -122,10 +121,9 @@ func fixBinaryTree(n *Node) {
 
 func printNodeDetails(n *Node) {
 	if n == nil {
-		fmt.Println("-----CHAIN STOPPED----")
 		return
 	}
-	fmt.Println("Letter_s: ", n.Letter_s, " ChildNodeRorL: ", n.ChildNodeRorL)
+	//fmt.Println("Letter_s: ", n.Letter_s, " ChildNodeRorL: ", n.ChildNodeRorL)
 	printNodeDetails(n.Parent)
 	fmt.Println("\n\n")
 }
