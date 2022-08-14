@@ -123,6 +123,9 @@ func main() {
 	}
 	log.Printf("Wrote %d bytes.\n", bytesWritten)
 
+    fmt.Println("\n\n*** Encoding Hash ***\n")
+    printEncodingHash(encodingHash)
+    fmt.Println("\n*********************")
 }
 
 func getBytesForInt(length int) []byte {
