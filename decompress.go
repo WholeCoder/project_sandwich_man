@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/binary"
 	"encoding/json"
-	"io/ioutil"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
+
+	"github.com/iancoleman/orderedmap"
 )
 
 func main() {
@@ -16,7 +18,7 @@ func main() {
 		fmt.Println("Must specify new file to be decompressed into as second command line parameter.")
 		fmt.Println("************************************")
 		fmt.Println("*            Usage                 *")
-		fmt.Println("* ",os.Args[0]," infile.cmp outfile*")
+		fmt.Println("* ", os.Args[0], " infile.cmp outfile*")
 		fmt.Println("************************************")
 		return
 	} else {
@@ -27,22 +29,25 @@ func main() {
 
 	sizeOfHashReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytes[:8]))
 
-	var s2 string = string(readInBytes[8:sizeOfHashReadFromDiskInBytes+8])
-fmt.Println("float hash =", s2)
-	var tempHash = map[string]float64{}
+	var s2 string = string(readInBytes[8 : sizeOfHashReadFromDiskInBytes+8])
+	fmt.Println("float hash =", s2)
+	var tempHash = orderedmap.New() // map[string]float64{}
 	err = json.Unmarshal([]byte(s2), &tempHash)
 	if err != nil {
 		panic(err)
 	}
 
 	// Create a hash with strings as keys and Nodes with float64 assigned to Data attribute.
-	hash := map[string]Node{}
-	for key, value := range tempHash {
-		hash[key] = Node{Data: value, AlreadyUsedToBuildBinaryTree: false}
+	hash := orderedmap.New() // map[string]Node{}
+	for _, key := range tempHash.Keys() {
+		valueInterface, _ := tempHash.Get(key)
+		value := valueInterface.(float64)
+		hash.Set(key, Node{Data: value, AlreadyUsedToBuildBinaryTree: false})
+		// hash[key] = Node{Data: value, AlreadyUsedToBuildBinaryTree: false}
 	}
 
-	encodingHash := map[string]string{}
-	initBinaryTree(&hash, &encodingHash)
+	encodingHash := orderedmap.New() // map[string]string{}
+	initBinaryTree(hash, encodingHash)
 
 	fmt.Println("read in bytes from disk: ", readInBytes)
 
@@ -54,12 +59,14 @@ fmt.Println("float hash =", s2)
 
 	// Grab root.
 	var root *Node
-	for _, value := range hash {
+	for _, key := range hash.Keys() {
+		valueInterface, _ := hash.Get(key)
+		value := valueInterface.(Node)
 		fmt.Println("*** Should Only Print Out Once ***")
 		root = &value
 	}
 
-    decoding := ""
+	decoding := ""
 	var idx int = 0
 	for idx < int(sizeOfCompressedTextReadFromDiskInBits) {
 		br := root
@@ -72,7 +79,7 @@ fmt.Println("float hash =", s2)
 			}
 			idx++
 		}
-fmt.Println(br.Letter_s)
+		fmt.Println(br.Letter_s)
 		decoding = decoding + br.Letter_s
 	}
 
