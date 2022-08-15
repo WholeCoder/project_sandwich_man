@@ -5,6 +5,9 @@
 *.so
 *.dylib
 *.swo
+*.swn
+*.go.swn
+*.go.swo
 
 # Test binary, built with `go test -c`
 *.test
