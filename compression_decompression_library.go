@@ -14,7 +14,11 @@ import (
 func compressText(encodingHash *orderedmap.OrderedMap, originalText string) string {
 	compressed := ""
 	for _, letter := range originalText {
-		value, _ := (*encodingHash).Get(string(letter))
+		value, exists := (*encodingHash).Get(string(letter))
+
+		if !exists {
+			value = ""
+		}
 
 		compressed = compressed + value.(string)
 	}
@@ -246,6 +250,15 @@ func createNewNodeFrom(node1, node2 *Node) *Node {
 	return &newNode
 }
 
+func convertNilToZero(valueInterface interface{}) int {
+
+	if valueInterface == nil {
+		return 0
+	}
+
+	return valueInterface.(int)
+}
+
 // Used
 // map[string]Node
 func initFrequencyHash(fileName string) orderedmap.OrderedMap {
@@ -258,7 +271,9 @@ func initFrequencyHash(fileName string) orderedmap.OrderedMap {
 
 	for _, ch := range asString {
 		valueInterface, _ := hash.Get(string(ch))
-		value := valueInterface.(int)
+		value2 := convertNilToZero(valueInterface)
+
+		value := value2
 		hash.Set(string(ch), value+1)
 		//hash[string(ch)] += 1
 	}
@@ -274,7 +289,12 @@ func initFrequencyHash(fileName string) orderedmap.OrderedMap {
 
 	for _, key := range hash.Keys() {
 		valueInterface, _ := hash.Get(key)
-		value := valueInterface.(float64)
+		var value int
+		if valueInterface == nil {
+			value = 0
+		} else {
+			value = valueInterface.(int)
+		}
 		freqNodemap.Set(key, Node{Data: float64(value) / float64(totalLetters), AlreadyUsedToBuildBinaryTree: false})
 
 		//freqNodemap[key] = Node{Data: float64(value) / float64(totalLetters), AlreadyUsedToBuildBinaryTree: false}
@@ -295,7 +315,13 @@ func initFrequencyHashWithFloat64ForValues(fileName string) orderedmap.OrderedMa
 
 	for _, ch := range asString {
 		valueInterface, _ := hash.Get(string(ch))
-		value := valueInterface.(int)
+
+		var value int
+		if valueInterface == nil {
+			value = 0
+		} else {
+			value = valueInterface.(int)
+		}
 		hash.Set(string(ch), value+1)
 		// hash[string(ch)] += 1
 	}
@@ -311,7 +337,12 @@ func initFrequencyHashWithFloat64ForValues(fileName string) orderedmap.OrderedMa
 
 	for _, key := range hash.Keys() {
 		valueInterface, _ := hash.Get(key)
-		value := valueInterface.(float64)
+		var value int
+		if valueInterface == nil {
+			value = 0.0
+		} else {
+			value = valueInterface.(int)
+		}
 		freqNodemap.Set(key, float64(value)/float64(totalLetters))
 		// freqNodemap[key] = float64(value) / float64(totalLetters)
 	}
