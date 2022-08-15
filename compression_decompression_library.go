@@ -4,13 +4,19 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+
+	"github.com/iancoleman/orderedmap"
 )
 
 // Used
-func compressText(encodingHash *map[string]string, originalText string) string {
+
+// map[string]string
+func compressText(encodingHash *orderedmap.OrderedMap, originalText string) string {
 	compressed := ""
 	for _, letter := range originalText {
-		compressed = compressed + (*encodingHash)[string(letter)]
+		value, _ := (*encodingHash).Get(string(letter))
+
+		compressed = compressed + value.(string)
 	}
 
 	return compressed
@@ -34,26 +40,30 @@ func check(err error) {
 	}
 }
 
-func printEncodingHash(encodingHash map[string]string) {
+// map[string]string
+func printEncodingHash(encodingHash orderedmap.OrderedMap) {
 	fmt.Println("------------------")
 
-	for key, value := range encodingHash {
+	for _, key := range encodingHash.Keys() {
+		value, _ := encodingHash.Get(key)
 		fmt.Println("encodingHash[ ", key, " ] = ", value)
 	}
 
 	fmt.Println("------------------")
 }
 
-func buildEncodingHash(hashForEncoding *map[string]*Node) *map[string]string {
-	encodingHash := map[string]string{}
+//*map[string]*Node   returns *map[string]string
+func buildEncodingHash(hashForEncoding orderedmap.OrderedMap) *orderedmap.OrderedMap {
+	encodingHash := orderedmap.New() //map[string]string{}
 
-	for key, value := range *hashForEncoding {
+	for _, key := range hashForEncoding.Keys() {
 		if len(key) == 1 {
-			encodingHash[key] = buildEncoding(value)
+			value, _ := hashForEncoding.Get(key)
+			encodingHash.Set(key, buildEncoding(value.(*Node)))
 		}
 	}
 
-	return &encodingHash
+	return encodingHash
 }
 
 func buildEncoding(node *Node) string {
@@ -70,9 +80,10 @@ func buildEncoding(node *Node) string {
 }
 
 // Used
-func initBinaryTree(hash *map[string]Node, encodingHash *map[string]string) *Node {
+// *map[string]Node, *map[string]string
+func initBinaryTree(hash *orderedmap.OrderedMap, encodingHash *orderedmap.OrderedMap) *Node {
 
-	for len(*hash) > 1 {
+	for len((*hash).Keys()) > 1 {
 		// findFreeMinNode will remove the nodes from the hash
 		nextNode := findFreeMinNode(hash)
 		nextNode.ChildNodeRorL = "0"
@@ -81,12 +92,14 @@ func initBinaryTree(hash *map[string]Node, encodingHash *map[string]string) *Nod
 		secondNode.ChildNodeRorL = "1"
 
 		newNode := createNewNodeFrom(nextNode, secondNode)
-		(*hash)[newNode.Letter_s] = *newNode
+		//(*hash)[newNode.Letter_s] = *newNode
+		(*hash).Set(newNode.Letter_s, *newNode)
 	}
 
 	var n Node
-	for _, value := range *hash { // Runs Once.
-		n = value
+	for _, key := range (*hash).Keys() { // Runs Once.
+		node_as_interface_type, _ := (*hash).Get(key)
+		n = node_as_interface_type.(Node)
 	}
 
 	fixBinaryTree(&n) // sorry folks!!
@@ -95,13 +108,14 @@ func initBinaryTree(hash *map[string]Node, encodingHash *map[string]string) *Nod
 }
 
 // Used
-func fixEncodingHash(node *Node, encodingHash *map[string]string) {
+// map[string]string
+func fixEncodingHash(node *Node, encodingHash *orderedmap.OrderedMap) {
 	if node == nil {
 		return
 	}
 
 	if len(node.Letter_s) == 1 {
-		(*encodingHash)[node.Letter_s] = buildEncoding(node)
+		(*encodingHash).Set(node.Letter_s, buildEncoding(node))
 	}
 	fixEncodingHash(node.Left, encodingHash)
 	fixEncodingHash(node.Right, encodingHash)
@@ -190,24 +204,29 @@ func debugCountHowManyLeftNodes(node *Node) {
 }
 
 // Find and remove node from hash.  Return the node
-func findFreeMinNode(hash *map[string]Node) *Node {
+//   *map[string]Node
+func findFreeMinNode(hash *orderedmap.OrderedMap) *Node {
 	var minKey string
 	var minValue Node
 
-	for key, value := range *hash {
+	for _, key := range (*hash).Keys() {
 		minKey = key
-		minValue = value
+		minValueInterfacetype, _ := (*hash).Get(minKey)
+		minValue = minValueInterfacetype.(Node)
 		break
 	}
 
-	for key, value := range *hash {
+	for _, key := range (*hash).Keys() {
+		valueInterface, _ := (*hash).Get(key)
+		value := valueInterface.(Node)
 		if value.Data < minValue.Data { // Data is the Probability
 			minKey = key
 			minValue = value
 		}
 	}
 
-	hashMinValue := (*hash)[minKey]
+	hashMinValueInterface, _ := (*hash).Get(minKey)
+	hashMinValue := hashMinValueInterface.(Node)
 	nodeMinValue := Node{Left: hashMinValue.Left,
 		Data:     hashMinValue.Data, // Data is Probability
 		Letter_s: minKey,
@@ -216,7 +235,7 @@ func findFreeMinNode(hash *map[string]Node) *Node {
 		Parent: nil,
 
 		ChildNodeRorL: hashMinValue.ChildNodeRorL}
-	delete(*hash, minKey)
+	(*hash).Delete(minKey)
 
 	return &nodeMinValue
 }
@@ -228,70 +247,74 @@ func createNewNodeFrom(node1, node2 *Node) *Node {
 }
 
 // Used
-func initFrequencyHash(fileName string) map[string]Node {
+// map[string]Node
+func initFrequencyHash(fileName string) orderedmap.OrderedMap {
 
 	dat, err := ioutil.ReadFile(fileName)
 	check(err)
 	asString := string(dat)
 
-	hash := map[string]int{}
+	hash := orderedmap.New() //map[string]int{}
 
 	for _, ch := range asString {
-		hash[string(ch)] += 1
+		valueInterface, _ := hash.Get(string(ch))
+		value := valueInterface.(int)
+		hash.Set(string(ch), value+1)
+		//hash[string(ch)] += 1
 	}
 
 	totalLetters := 0
-	for _, value := range hash {
+	for _, key := range hash.Keys() {
+		valueInterface, _ := hash.Get(key)
+		value := valueInterface.(int)
 		totalLetters += value
 	}
 
-	freqNodemap := map[string]Node{}
+	freqNodemap := orderedmap.New() //map[string]Node{}
 
-	for key, value := range hash {
-		freqNodemap[key] = Node{Data: float64(value) / float64(totalLetters), AlreadyUsedToBuildBinaryTree: false}
+	for _, key := range hash.Keys() {
+		valueInterface, _ := hash.Get(key)
+		value := valueInterface.(float64)
+		freqNodemap.Set(key, Node{Data: float64(value) / float64(totalLetters), AlreadyUsedToBuildBinaryTree: false})
+
+		//freqNodemap[key] = Node{Data: float64(value) / float64(totalLetters), AlreadyUsedToBuildBinaryTree: false}
 	}
 
-	return freqNodemap
+	return *freqNodemap
 }
 
 // Used
-func initFrequencyHashWithFloat64ForValues(fileName string) map[string]float64 {
+// returns map[string]float64
+func initFrequencyHashWithFloat64ForValues(fileName string) orderedmap.OrderedMap {
 
 	dat, err := ioutil.ReadFile(fileName)
 	check(err)
 	asString := string(dat)
 
-	hash := map[string]int{}
+	hash := orderedmap.New() //map[string]int{}
 
 	for _, ch := range asString {
-		hash[string(ch)] += 1
+		valueInterface, _ := hash.Get(string(ch))
+		value := valueInterface.(int)
+		hash.Set(string(ch), value+1)
+		// hash[string(ch)] += 1
 	}
 
 	totalLetters := 0
-	for _, value := range hash {
+	for _, key := range hash.Keys() {
+		valueInterface, _ := hash.Get(key)
+		value := valueInterface.(int)
 		totalLetters += value
 	}
 
-	freqNodemap := map[string]float64{}
+	freqNodemap := orderedmap.New() //map[string]float64{}
 
-	for key, value := range hash {
-		freqNodemap[key] = float64(value) / float64(totalLetters)
+	for _, key := range hash.Keys() {
+		valueInterface, _ := hash.Get(key)
+		value := valueInterface.(float64)
+		freqNodemap.Set(key, float64(value)/float64(totalLetters))
+		// freqNodemap[key] = float64(value) / float64(totalLetters)
 	}
 
-	return freqNodemap
-}
-
-func printHash(hash map[string]Node) {
-	keys := "abcdefghijklmnopqrstuvwxyz"
-
-	for _, akey := range []rune(keys) {
-		fmt.Println("hash[ ", string(akey), " ] = ", hash[string(akey)])
-	}
-}
-func printHashNodePointer(hash map[string]*Node) {
-	keys := "abcdefghijklmnopqrstuvwxyz"
-
-	for _, akey := range []rune(keys) {
-		fmt.Println("hash[ ", string(akey), " ] = ", *hash[string(akey)])
-	}
+	return *freqNodemap
 }

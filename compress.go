@@ -7,6 +7,8 @@ import (
 	"log"
 	"math"
 	"os"
+
+	"github.com/iancoleman/orderedmap"
 )
 
 func main() {
@@ -15,7 +17,7 @@ func main() {
 		fmt.Println("Must specify new file to be compressed into as second command line parameter.")
 		fmt.Println("************************************")
 		fmt.Println("*            Usage                 *")
-		fmt.Println("* ",os.Args[0],"infile outfile.cmp *")
+		fmt.Println("* ", os.Args[0], "infile outfile.cmp *")
 		fmt.Println("************************************")
 		return
 	} else {
@@ -24,9 +26,9 @@ func main() {
 
 	hash := initFrequencyHash(os.Args[1])
 
-	encodingHash := map[string]string{}
+	encodingHash := orderedmap.New() //map[string]string{}
 
-	initBinaryTree(&hash, &encodingHash)
+	initBinaryTree(&hash, encodingHash)
 
 	originalTextBytes, err := ReadInBytesFromFile(os.Args[1])
 	if err != nil {
@@ -34,20 +36,20 @@ func main() {
 	}
 	originalText := string(originalTextBytes)
 
-    fmt.Println("**************************************************** original Text ***********************************************")
-    fmt.Println("originalText: ", originalText)
-    fmt.Println("len( originalText ) =", len(originalText))
-    fmt.Println("******************************************************************************************************************")
+	fmt.Println("**************************************************** original Text ***********************************************")
+	fmt.Println("originalText: ", originalText)
+	fmt.Println("len( originalText ) =", len(originalText))
+	fmt.Println("******************************************************************************************************************")
 
-	compressedText := compressText(&encodingHash, originalText)
+	compressedText := compressText(encodingHash, originalText)
 
-	lengthOfCompressedTextInBytes := int(math.Ceil(float64(len(compressedText))/8.0))
-    lengthOfCompressedTextInBits := len(compressedText)
-    fmt.Println("3.  length of compressed text in bytes =", lengthOfCompressedTextInBytes)
-    fmt.Println("4.  length of compressed text in bits =", lengthOfCompressedTextInBits)
-    fmt.Println("**************************************************** compressed text as string of 0/1's *************************")
-    fmt.Println("5.  compressed text =", compressedText)
-    fmt.Println("*****************************************************************************************************************")
+	lengthOfCompressedTextInBytes := int(math.Ceil(float64(len(compressedText)) / 8.0))
+	lengthOfCompressedTextInBits := len(compressedText)
+	fmt.Println("3.  length of compressed text in bytes =", lengthOfCompressedTextInBytes)
+	fmt.Println("4.  length of compressed text in bits =", lengthOfCompressedTextInBits)
+	fmt.Println("**************************************************** compressed text as string of 0/1's *************************")
+	fmt.Println("5.  compressed text =", compressedText)
+	fmt.Println("*****************************************************************************************************************")
 	// Marshall - initFrequencyHash returns the hash with Node as value that are nil
 	hashForDecompression := initFrequencyHashWithFloat64ForValues(os.Args[1])
 
@@ -60,8 +62,8 @@ func main() {
 	// write this to fileInBytesInMemory
 	marshalledHashDecompressionLength := len(hashMarshalled)
 
-    fmt.Println("1.  length of marshalled float64 hash =", marshalledHashDecompressionLength)
-    fmt.Println("2.  hashForDecompressioned marshalled =", string(hashMarshalled))
+	fmt.Println("1.  length of marshalled float64 hash =", marshalledHashDecompressionLength)
+	fmt.Println("2.  hashForDecompressioned marshalled =", string(hashMarshalled))
 
 	// use this for lenght of file in bytes
 	byteLengthOfCompressedTextWithAdditional := uint64(uint64(math.Ceil(float64(lengthOfCompressedTextInBits)/8.0)) + 8.0 + 8.0 + uint64(marshalledHashDecompressionLength) + 8.0) // add 8.0 bytes for this size byteLengthOfCompressedText and add 8.0 for length of marshalledHashDecompressionLength (8) plus lenght of hashMarshalled and plus length of compressed text in bits (8)
@@ -83,7 +85,7 @@ func main() {
 
 	for count < 8+len(hashMarshalled) {
 		fileInBytesInMemory[count] = hashMarshalled[count-8]
-        count++
+		count++
 	}
 
 	for count < 8+len(hashMarshalled)+8 {
@@ -99,9 +101,9 @@ func main() {
 	compressedTextAsByteRay := InitNewByteset(fileInBytesInMemory)
 
 	for index, number := range compressedText {
-        if index > lengthOfCompressedTextInBits {
-            break
-        }
+		if index > lengthOfCompressedTextInBits {
+			break
+		}
 		compressedTextAsByteRay.SetBit(count*8+index, string(number) == "1")
 	}
 
@@ -123,9 +125,9 @@ func main() {
 	}
 	log.Printf("Wrote %d bytes.\n", bytesWritten)
 
-    fmt.Println("\n\n*** Encoding Hash ***\n")
-    printEncodingHash(encodingHash)
-    fmt.Println("\n*********************")
+	fmt.Println("\n\n*** Encoding Hash ***\n")
+	printEncodingHash(*encodingHash)
+	fmt.Println("\n*********************")
 }
 
 func getBytesForInt(length int) []byte {
