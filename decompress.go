@@ -16,10 +16,10 @@ func main() {
 	if len(os.Args) < 3 {
 		fmt.Println("Must specify file to be decompressed as first command line parameter.")
 		fmt.Println("Must specify new file to be decompressed into as second command line parameter.")
-		fmt.Println("************************************")
-		fmt.Println("*            Usage                 *")
-		fmt.Println("* ", os.Args[0], " infile.cmp outfile*")
-		fmt.Println("************************************")
+		fmt.Println("****************************************")
+		fmt.Println("             Usage                      ")
+		fmt.Println("  ", os.Args[0], " infile.cmp outfile   ")
+		fmt.Println("****************************************")
 		return
 	} else {
 		fmt.Println("Decompressing ->", os.Args[1], " ->", os.Args[2])
@@ -30,7 +30,6 @@ func main() {
 	sizeOfHashReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytes[:8]))
 
 	var s2 string = string(readInBytes[8 : sizeOfHashReadFromDiskInBytes+8])
-	fmt.Println("float hash =", s2)
 	var tempHash = orderedmap.New() // map[string]float64{}
 	err = json.Unmarshal([]byte(s2), &tempHash)
 	if err != nil {
@@ -43,16 +42,12 @@ func main() {
 		valueInterface, _ := tempHash.Get(key)
 		value := valueInterface.(float64)
 		hash.Set(key, Node{Data: value, AlreadyUsedToBuildBinaryTree: false})
-		// hash[key] = Node{Data: value, AlreadyUsedToBuildBinaryTree: false}
 	}
 
 	encodingHash := orderedmap.New() // map[string]string{}
 	initBinaryTree(hash, encodingHash)
 
-	fmt.Println("read in bytes from disk: ", readInBytes)
-
 	sizeOfCompressedTextReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytes[sizeOfHashReadFromDiskInBytes+8 : sizeOfHashReadFromDiskInBytes+8+8]))
-	fmt.Println("sizeOfCompressedTextReadFromDiskInBytes2 =", sizeOfCompressedTextReadFromDiskInBytes)
 	sizeOfCompressedTextReadFromDiskInBits := uint64(binary.BigEndian.Uint64(readInBytes[sizeOfHashReadFromDiskInBytes+8+8 : sizeOfHashReadFromDiskInBytes+8+8+8]))
 
 	bitsetReadIn := InitNewByteset(readInBytes[8+int(sizeOfHashReadFromDiskInBytes)+8+8 : 8+8+8+int(sizeOfHashReadFromDiskInBytes)+int(sizeOfCompressedTextReadFromDiskInBytes)])
@@ -62,7 +57,6 @@ func main() {
 	for _, key := range hash.Keys() {
 		valueInterface, _ := hash.Get(key)
 		value := valueInterface.(Node)
-		fmt.Println("*** Should Only Print Out Once ***")
 		root = &value
 	}
 
@@ -79,7 +73,6 @@ func main() {
 			}
 			idx++
 		}
-		fmt.Println(br.Letter_s)
 		decoding = decoding + br.Letter_s
 	}
 

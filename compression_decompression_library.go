@@ -149,7 +149,6 @@ func printNodeDetails(n *Node) {
 	if n == nil {
 		return
 	}
-	//fmt.Println("Letter_s: ", n.Letter_s, " ChildNodeRorL: ", n.ChildNodeRorL)
 	printNodeDetails(n.Parent)
 	fmt.Println("\n\n")
 }
