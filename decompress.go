@@ -60,7 +60,7 @@ func main() {
 		root = &value
 	}
 
-	decoding := ""
+	decoding_rune_slice := []rune{}
 	var idx int = 0
 	for idx < int(sizeOfCompressedTextReadFromDiskInBits) {
 		br := root
@@ -73,8 +73,10 @@ func main() {
 			}
 			idx++
 		}
-		decoding = decoding + br.Letter_s
+        
+        decoding_rune_slice = append(decoding_rune_slice, []rune(br.Letter_s)...)
 	}
+    decoding := string(decoding_rune_slice)
 
 	// Open a new file for writing only
 	file, err := os.OpenFile(
