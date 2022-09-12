@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/binary"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -14,8 +15,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("Length of bytes from archive: ", readInBytesForArchive)
 
 	sizeOfSliceOfStringFilenames := uint64(binary.BigEndian.Uint64(readInBytesForArchive[:8]))
+	fmt.Println("Length of files in archive: ", sizeOfSliceOfStringFilenames)
 
 	var tempStringSliceForFilenames string = string(readInBytesForArchive[8 : sizeOfSliceOfStringFilenames+8])
 	var sliceOfFilenames = []string{}
@@ -27,9 +30,10 @@ func main() {
 	var sliceOfFileLengths = []uint64{}
 
 	count := 8 + int(sizeOfSliceOfStringFilenames)
-
-	for ; count < 8+len(sliceOfFilenames)*8+int(sizeOfSliceOfStringFilenames); count += 8 {
+	fmt.Println("Files In Archive (", len(sliceOfFilenames), " ): ")
+	for ; count < 8+int(sizeOfSliceOfStringFilenames); count += 8 {
 		sliceOfFileLengths = append(sliceOfFileLengths, uint64(binary.BigEndian.Uint64(readInBytesForArchive[count:count+8])))
+		fmt.Println("\t", sliceOfFilenames[len(sliceOfFileLengths)-1], "   length =", sliceOfFileLengths[len(sliceOfFileLengths)-1])
 	}
 
 	for i := 0; i < len(sliceOfFilenames); i++ {
