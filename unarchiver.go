@@ -36,6 +36,8 @@ func main() {
 		fmt.Println("\t", sliceOfFilenames[len(sliceOfFileLengths)-1], "   length =", sliceOfFileLengths[len(sliceOfFileLengths)-1])
 	}
 
+	sliceOfFileNamesForDecompression := []string{}
+
 	for i := 0; i < len(sliceOfFilenames); i++ {
 		// Get the next file slice.
 		size_of_compressed_file := uint64(binary.BigEndian.Uint64(readInBytesForArchive[count : count+8]))
@@ -50,6 +52,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		sliceOfFileNamesForDecompression = append(sliceOfFileNamesForDecompression, sliceOfFilenames[i]+".comp")
 		defer file.Close()
 
 		bytesWritten, err := file.Write([]byte(readInBytesForArchive[count : count+int(size_of_compressed_file)]))
@@ -62,4 +66,10 @@ func main() {
 		count += int(size_of_compressed_file)
 	}
 
+	fmt.Println("\n*** Decompressing ***")
+	for i := 0; i < len(sliceOfFileNamesForDecompression); i++ {
+		decompress_main(sliceOfFileNamesForDecompression[i], sliceOfFilenames[i])
+	}
+	fmt.Println("\n   Finished Decompression ***")
+	fmt.Println("***********************")
 }
