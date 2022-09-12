@@ -11,21 +11,14 @@ import (
 	"github.com/iancoleman/orderedmap"
 )
 
-func main() {
-	fmt.Println("args ==", os.Args)
-	if len(os.Args) < 3 {
-		fmt.Println("Must specify file to be decompressed as first command line parameter.")
-		fmt.Println("Must specify new file to be decompressed into as second command line parameter.")
-		fmt.Println("****************************************")
-		fmt.Println("             Usage                      ")
-		fmt.Println("  ", os.Args[0], " infile.cmp outfile   ")
-		fmt.Println("****************************************")
-		return
-	} else {
-		fmt.Println("Decompressing ->", os.Args[1], " ->", os.Args[2])
-	}
+func decompress_main(fromFile, toFile string) {
+	fmt.Println("****************************************")
+	fmt.Println("             Usage                      ")
+	fmt.Println("  decompress_main infile.cmp outfile   ")
+	fmt.Println("****************************************")
+	fmt.Println("Decompressing ->", fromFile, " ->", toFile)
 
-	readInBytes, err := ioutil.ReadFile(os.Args[1])
+	readInBytes, err := ioutil.ReadFile(fromFile)
 
 	sizeOfHashReadFromDiskInBytes := uint64(binary.BigEndian.Uint64(readInBytes[:8]))
 
@@ -73,14 +66,14 @@ func main() {
 			}
 			idx++
 		}
-        
-        decoding_rune_slice = append(decoding_rune_slice, []rune(br.Letter_s)...)
+
+		decoding_rune_slice = append(decoding_rune_slice, []rune(br.Letter_s)...)
 	}
-    decoding := string(decoding_rune_slice)
+	decoding := string(decoding_rune_slice)
 
 	// Open a new file for writing only
 	file, err := os.OpenFile(
-		os.Args[2],
+		toFile,
 		os.O_WRONLY|os.O_TRUNC|os.O_CREATE,
 		0666,
 	)
