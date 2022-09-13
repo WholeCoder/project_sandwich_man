@@ -69,6 +69,7 @@ func main() {
 	fmt.Println("\n*** Decompressing ***")
 	for i := 0; i < len(sliceOfFileNamesForDecompression); i++ {
 		decompress_main(sliceOfFileNamesForDecompression[i], sliceOfFilenames[i])
+		os.Remove(sliceOfFileNamesForDecompression[i])
 	}
 	fmt.Println("\n   Finished Decompression ***")
 	fmt.Println("***********************")
